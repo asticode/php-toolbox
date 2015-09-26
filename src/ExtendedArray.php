@@ -43,7 +43,7 @@ class ExtendedArray
                 if (!array_key_exists($key, $arrayExtended)) {
                     $arrayExtended[$key] = [];
                 }
-                self::extendItem($value, $arrayExtended[$key]);
+                self::extendItem($arrayExtended[$key], $value);
             }
         }
     }
