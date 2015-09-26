@@ -2,7 +2,13 @@
   "name": "asticode/php-toolbox",
   "type": "library",
   "description": "Static methods to ease PHP developments",
-  "keywords": ["php","toolbox","shell","array","string"],
+  "keywords": [
+    "php",
+    "toolbox",
+    "shell",
+    "array",
+    "string"
+  ],
   "homepage": "https://github.com/asticode/php-toolbox",
   "license": "MIT",
   "authors": [
