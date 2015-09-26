@@ -17,27 +17,28 @@ class ExtendedString
         return $sInput;
     }
 
-    public static function toCamelCase($sInput, $separator = '_', $capitalizeFirstCharacter = false)
+    public static function toCamelCase($sInput, $sSeparator = '_', $capitalizeFirstCharacter = false)
     {
-        $sInput = str_replace(' ', '', ucwords(str_replace($separator, ' ', $sInput)));
+        $sInput = str_replace(' ', '', ucwords(str_replace($sSeparator, ' ', $sInput)));
         if (!$capitalizeFirstCharacter) {
             $sInput[0] = strtolower($sInput[0]);
         }
         return trim($sInput);
     }
 
-    public static function toSnakeCase($sInput, $separator = '_', $replaceUppercaseLetters = false)
+    public static function toSnakeCase($sInput, $sSeparator = '_', $replaceUppercaseLetters = false)
     {
-        $sInput = preg_replace('/[\s]+/', $separator, $sInput);
+        $sInput = preg_replace('/[\s]+/', $sSeparator, $sInput);
         if ($replaceUppercaseLetters === true) {
             for ($index = 0; $index < strlen($sInput); $index++) {
                 if (ctype_upper($sInput[$index]) === true) {
                     $sInput[$index] = strtolower($sInput[$index]);
-                    $sInput = substr_replace($sInput, $separator, $index, 0);
+                    $sInput = substr_replace($sInput, $sSeparator, $index, 0);
                     $index++;
                 }
             }
         }
+        $sInput = preg_replace(sprintf('/[%s]+/', self::pregQuote($sSeparator)), $sSeparator, $sInput);
         return trim(strtolower($sInput));
     }
 
