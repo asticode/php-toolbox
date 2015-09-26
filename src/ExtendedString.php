@@ -39,7 +39,7 @@ class ExtendedString
             }
         }
         $sInput = preg_replace(sprintf('/[%s]+/', self::pregQuote($sSeparator)), $sSeparator, $sInput);
-        return trim(strtolower($sInput));
+        return trim(trim(strtolower($sInput), '_'));
     }
 
     public static function pregQuote($sInput)
