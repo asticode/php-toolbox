@@ -21,11 +21,11 @@ class ExtendedShell
 
         // Create asticode command
         $sAsticodeCommand = sprintf(
-            '(%1$s %2$s 2>%3$s ; echo $? 1>%4$s 2>&1) & echo $! 2>&1',
+            '(%1$s 2>%2$s %3$s ; echo $? 1>%4$s 2>&1) & echo $! 2>&1',
             $sCommand,
             // TODO change preg_match because of echo « a>b »
-            preg_match('/\>/', $sCommand) === 0 ? '1>&2' : '',
             $aPaths['output'],
+            preg_match('/\>/', $sCommand) === 0 ? '1>&2' : '',
             $aPaths['exit_status']
         );
 
