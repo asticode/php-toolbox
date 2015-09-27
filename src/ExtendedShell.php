@@ -5,7 +5,7 @@ use RuntimeException;
 
 class ExtendedShell
 {
-    public static function exec($sCommand, $iTimeout = 0, $bThrowException = false, $iSigkillDelay = 1)
+    public static function exec($sCommand, $iTimeout = 0, $bThrowException = true, $iSigkillDelay = 1)
     {
         // Create paths
         $aPaths = [
