@@ -7,9 +7,6 @@ class ExtendedShell
 {
     public static function exec($sCommand, $iTimeout = 0, $bThrowException = false, $iSigkillDelay = 1)
     {
-        // TODO DELETE
-        $sCommand = 'rm /home/asticode/Music';
-
         // Create paths
         $aPaths = [
             'stdout' => tempnam(sys_get_temp_dir(), 'asticode_shell_'),
