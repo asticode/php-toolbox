@@ -89,7 +89,7 @@ class ExtendedShell
         $aStdErr = explode("\n", file_get_contents($aPaths['stderr']));
 
         // Get return status
-        $sExitStatus = file_get_contents($aPaths['exit_status']);
+        $sExitStatus = trim(file_get_contents($aPaths['exit_status']));
         if ($sExitStatus === '0') {
             $iExitStatus = 0;
         } elseif (intval($sExitStatus) === 0) {
