@@ -86,20 +86,12 @@ class ExtendedArray
 
     public static function clean(array $aInput)
     {
-        // Loop through input
-        foreach ($aInput as $sKey => $sValue) {
-            // Trim value
-            $sValue = trim($sValue);
-
-            // Remove value
+        return array_filter(array_map('trim', $aInput), function($sValue) {
             if ($sValue === '') {
-                unset($aInput[$sKey]);
+                return false;
             } else {
-                $aInput[$sKey] = $sValue;
+                return true;
             }
-        }
-
-        // Return
-        return $aInput;
+        });
     }
 }
