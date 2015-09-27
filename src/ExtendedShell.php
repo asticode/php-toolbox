@@ -1,29 +1,34 @@
 <?php
 namespace Asticode\Toolbox;
 
+use RuntimeException;
+
 class ExtendedShell
 {
-    public static function exec($sCommand, $iTimeout = 0, $iUsleep = 100000)
+    public static function exec($sCommand, $iTimeout = 0, $bThrowException = false, $iSigkillDelay = 1)
     {
-        // Initialize
-        $aOutputArray = [];
-        $sOutputContentPath = tempnam(sys_get_temp_dir(), 'asticode_shell_');
-        $sErrorContentPath = tempnam(sys_get_temp_dir(), 'asticode_shell_');
+        // TODO DELETE
+        $sCommand = 'rm /home/asticode/Music';
 
-        // Update command
-        if (preg_match('/\>/', $sCommand) === 0) {
-            $sCommand .= sprintf(
-                ' 1>%s',
-                $sOutputContentPath
-            );
-        }
-        $sCommand .= sprintf(
-            ' 2>%s & echo $! 2>&1',
-            $sErrorContentPath
+        // Create paths
+        $aPaths = [
+            'stdout' => tempnam(sys_get_temp_dir(), 'asticode_shell_'),
+            'stderr' => tempnam(sys_get_temp_dir(), 'asticode_shell_'),
+            'exit_status' => tempnam(sys_get_temp_dir(), 'asticode_shell_'),
+        ];
+
+        // Create asticode command
+        $sAsticodeCommand = sprintf(
+            '(%1$s %2$s 2>%3$s ; echo $? 1>%4$s 2>&1) & echo $! 2>&1',
+            $sCommand,
+            preg_match('/\>/', $sCommand) === 0 ? sprintf('1>%s', $aPaths['stdout']) : '',
+            $aPaths['stderr'],
+            $aPaths['exit_status']
         );
 
         // Execute
-        exec($sCommand, $aOutputArray);
+        $aOutputArray = [];
+        exec($sAsticodeCommand, $aOutputArray);
 
         // Record start time
         $iStartTime = microtime(true);
@@ -31,11 +36,7 @@ class ExtendedShell
         // Command is valid
         if (!isset($aOutputArray[0])) {
             // Return
-            return self::execReturn($sOutputContentPath, $sErrorContentPath, sprintf(
-                'No process ID found for Command %s with message %s',
-                $sCommand,
-                implode("\n", $aOutputArray)
-            ));
+            return self::processExec($sCommand, $aPaths, $bThrowException, 'No process ID found');
         }
 
         // Get process ID
@@ -50,14 +51,14 @@ class ExtendedShell
             if ($iTimeout > 0 and (microtime(true) - $iStartTime) > $iTimeout) {
                 // Kill process
                 exec(sprintf(
-                    'kill -9 %s',
-                    $sProcessID
+                    'kill -s SIGTERM %1$s & sleep %2$s && kill -s SIGKILL %1$s',
+                    $sProcessID,
+                    $iSigkillDelay
                 ));
 
                 // Return
-                return self::execReturn($sOutputContentPath, $sErrorContentPath, sprintf(
-                    'Command %s has timed out (timeout: %s | processId: %s)',
-                    $sCommand,
+                return self::processExec($sCommand, $aPaths, $bThrowException, sprintf(
+                    'Command has timed out (timeout: %s | processId: %s)',
                     $iTimeout,
                     $sProcessID
                 ));
@@ -77,41 +78,57 @@ class ExtendedShell
             }
 
             // Sleep
-            usleep($iUsleep);
+            usleep(100000);
         } while (!$bTerminate);
         
         // Return
-        return self::execReturn($sOutputContentPath, $sErrorContentPath);
+        return self::processExec($sCommand, $aPaths, $bThrowException);
     }
 
-    private static function execReturn($sOutputContentPath, $sErrorContentPath, $sAdditionnalErrorMessage = '')
+    private static function processExec($sCommand, array $aPaths, $bThrowException, $sErrorMessage = '')
     {
-        // Get output
-        $sOutputContent = file_get_contents($sOutputContentPath);
-        $sErrorContent = file_get_contents($sErrorContentPath);
+        // Get outputs
+        $aStdOut = explode("\n", file_get_contents($aPaths['stdout']));
+        $aStdErr = explode("\n", file_get_contents($aPaths['stderr']));
+
+        // Get return status
+        $sExitStatus = file_get_contents($aPaths['exit_status']);
+        if ($sExitStatus === '0') {
+            $iExitStatus = 0;
+        } elseif (intval($sExitStatus) === 0) {
+            $iExitStatus = 128;
+        } else {
+            $iExitStatus = intval($sExitStatus);
+        }
+
+        // Inject error message
+        if ($sErrorMessage !== '') {
+            $aStdErr[] = $sErrorMessage;
+            $iExitStatus = 1;
+        }
 
         // Remove temp files
         exec(sprintf(
-            "rm '%s' '%s'",
-            $sOutputContentPath,
-            $sErrorContentPath
+            "rm '%s'",
+            implode("' '", $aPaths)
         ));
 
-        // Explode output
-        $aOutputArray = explode("\n", $sOutputContent);
-        $aErrorArray = explode("\n", $sErrorContent);
-
-        // Add additionnal error message
-        if ($sAdditionnalErrorMessage !== '') {
-            $sErrorContent[] = $sAdditionnalErrorMessage;
+        // Throw exception
+        if ($bThrowException and $iExitStatus !== 0) {
+            throw new RuntimeException(sprintf(
+                'Invalid return status "%s" for command "%s" with stdout "%s" and stderr "%s"',
+                $iExitStatus,
+                $sCommand,
+                implode('/', $aStdOut),
+                implode('/', $aStdErr)
+            ));
         }
-
-        // Clean outputs
 
         // Return
         return [
-            ExtendedArray::clean($aOutputArray),
-            ExtendedArray::clean($aErrorArray),
+            ExtendedArray::clean($aStdOut),
+            ExtendedArray::clean($aStdErr),
+            $iExitStatus,
         ];
     }
 }
