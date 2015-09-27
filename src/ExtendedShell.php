@@ -98,8 +98,8 @@ class ExtendedShell
         ));
 
         // Explode output
-        $sOutputArray = explode("\n", $sOutputContent);
-        $sErrorArray = explode("\n", $sErrorContent);
+        $aOutputArray = explode("\n", $sOutputContent);
+        $aErrorArray = explode("\n", $sErrorContent);
 
         // Add additionnal error message
         if ($sAdditionnalErrorMessage !== '') {
@@ -110,8 +110,8 @@ class ExtendedShell
 
         // Return
         return [
-            ExtendedArray::clean($sOutputArray),
-            ExtendedArray::clean($sErrorArray),
+            ExtendedArray::clean($aOutputArray),
+            ExtendedArray::clean($aErrorArray),
         ];
     }
 }
