@@ -83,4 +83,23 @@ class ExtendedArray
     {
         return array_pop($aInput);
     }
+
+    public static function clean(array $aInput)
+    {
+        // Loop through input
+        foreach ($aInput as $sKey => $sValue) {
+            // Trim value
+            $sValue = trim($sValue);
+
+            // Remove value
+            if ($sValue === '') {
+                unset($aInput[$sKey]);
+            } else {
+                $aInput[$sKey] = $sValue;
+            }
+        }
+
+        // Return
+        return $aInput;
+    }
 }

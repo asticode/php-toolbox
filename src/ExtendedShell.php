@@ -90,14 +90,6 @@ class ExtendedShell
         $sOutputContent = file_get_contents($sOutputContentPath);
         $sErrorContent = file_get_contents($sErrorContentPath);
 
-        // Add additionnal error message
-        if ($sAdditionnalErrorMessage !== '') {
-            $sErrorContent .= sprintf(
-                "\n%s",
-                $sAdditionnalErrorMessage
-            );
-        }
-
         // Remove temp files
         exec(sprintf(
             "rm '%s' '%s'",
@@ -105,10 +97,21 @@ class ExtendedShell
             $sErrorContentPath
         ));
 
+        // Explode output
+        $sOutputArray = explode("\n", $sOutputContent);
+        $sErrorArray = explode("\n", $sErrorContent);
+
+        // Add additionnal error message
+        if ($sAdditionnalErrorMessage !== '') {
+            $sErrorContent[] = $sAdditionnalErrorMessage;
+        }
+
+        // Clean outputs
+
         // Return
         return [
-            trim($sOutputContent),
-            trim($sErrorContent),
+            ExtendedArray::clean($sOutputArray),
+            ExtendedArray::clean($sErrorArray),
         ];
     }
 }
