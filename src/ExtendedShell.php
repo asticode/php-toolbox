@@ -101,7 +101,7 @@ class ExtendedShell
         // Inject error message
         if ($sErrorMessage !== '') {
             $aStdErr[] = $sErrorMessage;
-            $iExitStatus = 1;
+            $iExitStatus = 128;
         }
 
         // Remove temp files
