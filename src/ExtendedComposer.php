@@ -43,12 +43,13 @@ class ExtendedComposer
                 $aOutput = [];
             }
         }
+        $sDefault = isset($aOutput[0]) ? trim($aOutput[0]) : $sDefault;
 
         // Return
         return self::ask(
             $oEvent,
             self::formatQuestion($sLabel, $sDefault),
-            isset($aOutput[0]) ? trim($aOutput[0]) : $sDefault,
+            $sDefault,
             $bMandatory,
             function ($sValue) use ($sCheckCommand) {
                 // Initialize
