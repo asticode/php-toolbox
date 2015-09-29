@@ -97,7 +97,7 @@ class ExtendedShell
     private static function processResult(
         $sCommand,
         array $aPaths,
-        array &$aOutput,
+        &$aOutput,
         $bThrowException,
         $sErrorMessage = ''
     ) {
