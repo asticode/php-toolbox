@@ -92,7 +92,7 @@ class ExtendedComposer
         return $oEvent->getIO()->askAndValidate(
             $sQuestion,
             $fValidator,
-            false,
+            null,
             $sDefault
         );
     }
