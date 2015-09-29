@@ -2,6 +2,7 @@
 namespace Asticode\Toolbox;
 
 use Composer\Script\Event;
+use Exception;
 use RuntimeException;
 
 class ExtendedComposer
@@ -24,14 +25,30 @@ class ExtendedComposer
     public static function askBinaryPath(
         Event $oEvent,
         $sLabel,
+        $sBinaryName,
         $sCheckCommand,
         $sDefault = null,
+        $bGetRealDefaultValue = true,
         $bMandatory = false
     ) {
+        // Get real default value
+        $aOutput = [];
+        if ($bGetRealDefaultValue) {
+            try {
+                ExtendedShell::exec(sprintf(
+                    'which %s',
+                    $sBinaryName
+                ), $aOutput);
+            } catch (Exception $oException) {
+                $aOutput = [];
+            }
+        }
+
+        // Return
         return self::ask(
             $oEvent,
             self::formatQuestion($sLabel, $sDefault),
-            $sDefault,
+            isset($aOutput[0]) ? trim($aOutput[0]) : $sDefault,
             $bMandatory,
             function ($sValue) use ($sCheckCommand) {
                 // Initialize
@@ -42,7 +59,7 @@ class ExtendedComposer
 
                 // Exec
                 try {
-                    ExtendedShell::exec($sCheckCommand);
+                    ExtendedShell::exec($sCheckCommand, $aOutput);
                 } catch (\Exception $oException) {
                     throw new RuntimeException(sprintf(
                         "Invalid path %s with error %s",
