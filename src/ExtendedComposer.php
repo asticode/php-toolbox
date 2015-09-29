@@ -38,7 +38,7 @@ class ExtendedComposer
         // Get validator
         if ($bMandatory) {
             $fValidator = function ($sValue) {
-                if ($sValue !== '') {
+                if ($sValue !== '' and !is_null($sValue)) {
                     return $sValue;
                 } else {
                     throw new RuntimeException('Value can\'t be blank');
@@ -46,7 +46,7 @@ class ExtendedComposer
             };
         } else {
             $fValidator = function ($sValue) {
-                return $sValue;
+                return is_null($sValue) ? '' : $sValue;
             };
         }
 
