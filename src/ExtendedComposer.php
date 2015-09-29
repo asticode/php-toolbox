@@ -7,25 +7,50 @@ use RuntimeException;
 class ExtendedComposer
 {
 
-    public static function askValue(
+    public static function askString(
         Event $oEvent,
         $sLabel,
         $sDefault = null,
         $bMandatory = false
     ) {
-        // Create question
-        $sQuestion = sprintf(
-            '%s%s: ',
-            $sLabel,
-            !is_null($sDefault) ? sprintf(' [%s]', $sDefault) : ''
-        );
-
-        // Return
         return self::ask(
             $oEvent,
-            $sQuestion,
+            self::formatQuestion($sLabel, $sDefault),
             $sDefault,
             $bMandatory
+        );
+    }
+
+    public static function askBinaryPath(
+        Event $oEvent,
+        $sLabel,
+        $sCheckCommand,
+        $sDefault = null,
+        $bMandatory = false
+    ) {
+        return self::ask(
+            $oEvent,
+            self::formatQuestion($sLabel, $sDefault),
+            $sDefault,
+            $bMandatory,
+            function ($sValue) use ($sCheckCommand) {
+                // Initialize
+                $aOutput = [];
+
+                // Exec
+                try {
+                    ExtendedShell::exec($sCheckCommand);
+                } catch (\Exception $oException) {
+                    throw new RuntimeException(sprintf(
+                        "Invalid path %s with error %s",
+                        $sValue,
+                        implode(', ', ExtendedArray::clean($aOutput))
+                    ));
+                }
+
+                // Return
+                return $sValue;
+            }
         );
     }
 
@@ -33,29 +58,48 @@ class ExtendedComposer
         Event $oEvent,
         $sQuestion,
         $sDefault = null,
-        $bMandatory = false
+        $bMandatory = false,
+        $fValidatorCustom = null
     ) {
         // Get validator
         if ($bMandatory) {
-            $fValidator = function ($sValue) {
+            $fValidator = function ($sValue) use ($fValidatorCustom) {
                 if ($sValue !== '' and !is_null($sValue)) {
-                    return $sValue;
+                    if (is_null($fValidatorCustom)) {
+                        return $sValue;
+                    } else {
+                        return call_user_func_array($fValidatorCustom, [$sValue]);
+                    }
                 } else {
                     throw new RuntimeException('Value can\'t be blank');
                 }
             };
         } else {
-            $fValidator = function ($sValue) {
-                return is_null($sValue) ? '' : $sValue;
+            $fValidator = function ($sValue) use ($fValidatorCustom) {
+                $sValue = is_null($sValue) ? '' : $sValue;
+                if (is_null($fValidatorCustom)) {
+                    return $sValue;
+                } else {
+                    return call_user_func_array($fValidatorCustom, [$sValue]);
+                }
             };
         }
 
-        // Ask and validate
+        // Return
         return $oEvent->getIO()->askAndValidate(
             $sQuestion,
             $fValidator,
             false,
             $sDefault
+        );
+    }
+
+    private static function formatQuestion($sLabel, $sDefault)
+    {
+        return sprintf(
+            '%s%s: ',
+            $sLabel,
+            !is_null($sDefault) ? sprintf(' [%s]', $sDefault) : ''
         );
     }
 
