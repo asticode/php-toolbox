@@ -37,6 +37,9 @@ class ExtendedComposer
                 // Initialize
                 $aOutput = [];
 
+                // Update check command
+                $sCheckCommand = sprintf($sCheckCommand, $sValue);
+
                 // Exec
                 try {
                     ExtendedShell::exec($sCheckCommand);
