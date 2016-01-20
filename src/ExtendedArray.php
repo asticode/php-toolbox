@@ -86,7 +86,7 @@ class ExtendedArray
 
     public static function clean(array $aInput)
     {
-        return array_filter(array_map('trim', $aInput), function($sValue) {
+        return array_filter(array_map('trim', $aInput), function ($sValue) {
             return $sValue !== '';
         });
     }

@@ -26,7 +26,7 @@ class ExtendedString
         return trim($sInput);
     }
 
-    public static function toSnakeCase($sInput, $sSeparator = '_', $replaceUppercaseLetters = false)
+    public static function toSnakeCase($sInput, $sSeparator = '_', $replaceUppercaseLetters = true)
     {
         $sInput = preg_replace('/[\s]+/', $sSeparator, $sInput);
         if ($replaceUppercaseLetters === true) {
