@@ -69,4 +69,13 @@ class ExtendedString
             $sEscapedString
         ), $sInput);
     }
+
+    public static function random($iNumberOfCharacters)
+    {
+        $sOutput = '';
+        for ($i = 0; $i < $iNumberOfCharacters; $i++) {
+            $sOutput .= chr(mt_rand(0, 255));
+        }
+        return $sOutput;
+    }
 }
