@@ -74,7 +74,7 @@ class ExtendedString
     {
         $sOutput = '';
         for ($i = 0; $i < $iNumberOfCharacters; $i++) {
-            $sOutput .= chr(mt_rand(0, 255));
+            $sOutput .= chr(mt_rand(33, 126));
         }
         return $sOutput;
     }
